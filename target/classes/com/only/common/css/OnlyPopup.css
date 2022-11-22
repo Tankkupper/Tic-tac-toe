@@ -1,0 +1,8 @@
+.only-popup  {
+	-fx-effect: dropshadow(gaussian, rgba(0,0,0,.2), 10.0, 0.5, 2.0, 2.0);
+}
+
+.only-popup > .content {
+	-fx-background-color: rgba(255.0,255.0,255.0, 0.75);
+}
+

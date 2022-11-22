@@ -1,0 +1,20 @@
+/*#windowClose {*/
+/*    -fx-background-color: null;*/
+/*    -fx-background-radius: 0.0;*/
+/*}*/
+
+#windowClose  {
+    -fx-background-image: url("../images/window/window_close_dark_normal.png");
+}
+
+#windowClose:focused {
+    -fx-background-image: url("../images/window/window_close_dark_normal.png");
+}
+
+#windowClose:hover {
+    -fx-background-image: url("../images/window/window_close_dark_hover.png");
+}
+
+#windowClose:pressed {
+    -fx-background-image: url("../images/window/window_close_dark_press.png");
+}
