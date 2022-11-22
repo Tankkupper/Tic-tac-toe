@@ -2,8 +2,13 @@ package application.client.controller;
 
 import application.action.*;
 import application.bean.LoginBean;
+import application.bean.PositionBean;
 import application.bean.RegisterBean;
 import application.bean.UserInfoBean;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -22,6 +27,15 @@ public class SocketManager {
     private static Thread sendThread;
 
     private static Thread listenThread;
+
+    private static LoginBean myselfLogin;
+
+    private static boolean isAlive = false;
+
+    public static boolean isIsAlive() {
+        return isAlive;
+    }
+
 
     public static void setGameService(LobbyController.GameService gameService) {
         SocketManager.gameService = gameService;
@@ -47,7 +61,8 @@ public class SocketManager {
             sendThread.start();
             listenThread = null;
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error("InitSocket fail");
             return false;
         }
         return true;
@@ -103,14 +118,19 @@ public class SocketManager {
             return Optional.of(new UserInfoBean());
         }
     }
+
+    public static Optional<UserInfoBean>  loginAgain() {
+        return loginAction(myselfLogin);
+    }
     public static Optional<UserInfoBean> loginAction(LoginBean loginBean) {
+        myselfLogin = loginBean;
         Action loginAction = new LoginAction(loginBean);
         sendQueue.add(loginAction);
         Action receiveAction;
         try {
             receiveAction = receive();
         } catch (IOException | ClassNotFoundException e) {
-            // when a exception occurs, the server crashed
+            // when an exception occurs, the server crashed
             exceptionHandle();
             return Optional.empty();
         }
@@ -134,6 +154,31 @@ public class SocketManager {
         Action action = new InviteAction(userInfoBean);
         sendQueue.add(action);
     }
+
+    public static void matchAction(UserInfoBean userInfoBean) {
+        Action action = new MatchAction(userInfoBean);
+        sendQueue.add(action);
+    }
+
+    public static void playAction(PositionBean positionBean) {
+        Action action = new PlayAction(positionBean);
+        sendQueue.add(action);
+    }
+
+    /*
+    *  only active on invite and match
+    *
+    * */
+    public static void serverClose() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("The server refuse to connect");
+            Button ok = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+            ok.setText("OK");
+            alert.show();
+        });
+    }
     private static Action receive() throws IOException, ClassNotFoundException {
 
         // TODO: when the server crash
@@ -146,6 +191,7 @@ public class SocketManager {
     }
 
     private static void exceptionHandle() {
+        isAlive = false;
         try {
             if (listenThread != null) {
                 listenThread.interrupt();
@@ -165,7 +211,7 @@ public class SocketManager {
         try {
             if (socket != null) {
                 socket.close();
-                log.debug("socket close");
+                log.error("socket close");
                 socket = null;
             }
         } catch (IOException e) {
@@ -176,6 +222,7 @@ public class SocketManager {
     static private class SenderTask implements Runnable {
         @Override
         public void run() {
+            isAlive = true;
             Action action;
             while(!Thread.currentThread().isInterrupted()) {
                 try {
@@ -212,8 +259,8 @@ public class SocketManager {
                 oos.writeObject(action);
                 oos.flush();
             } catch (Exception e) {
-                e.printStackTrace();
-                log.debug("Send fails");
+                //e.printStackTrace();
+                log.error("Send fails, server refuse to connect");
                 exceptionHandle();
             }
         }
@@ -238,8 +285,13 @@ public class SocketManager {
                     } else if (action instanceof UserInfoListReplyAction){
                         // when receive a ListView List
                         gameService.listReply((UserInfoListReplyAction) action);
+                    } else if (action instanceof GameInitAction) {
+                        gameService.init((GameInitAction) action);
+                    } else if (action instanceof PlayReplyAction) {
+                        // TODO:
+                        gameService.put((PlayReplyAction) action);
                     } else {
-                        log.warn(action);
+                        log.trace(action);
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     log.trace("Nothing to read");
@@ -250,7 +302,7 @@ public class SocketManager {
                         log.debug("Sleep fails");
                         exceptionHandle();
                         //System.out.println(Thread.currentThread().isInterrupted());
-                        ee.printStackTrace();
+                        //ee.printStackTrace();
                     }
                 }
             }

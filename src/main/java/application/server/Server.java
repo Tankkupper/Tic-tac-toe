@@ -38,6 +38,8 @@ public class Server {
         actionToServlet.put(RegisterAction.class, new RegisterServlet());
         actionToServlet.put(PullUsersAction.class, new PullUsersServlet());
         actionToServlet.put(InviteAction.class, new InvitationServlet());
+        actionToServlet.put(MatchAction.class, new MatchServlet());
+        actionToServlet.put(PlayAction.class, new GameServlet());
     }
 
     public void launch() {

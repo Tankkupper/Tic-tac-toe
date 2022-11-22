@@ -1,4 +1,6 @@
 package application.server.service;
 
-public interface LobbyService {
+public class GameServiceImpl {
+
+
 }

@@ -85,6 +85,10 @@ public class BiMap<K, V> {
         }
     }
 
+    public Set<Map.Entry<K,V>> entrySet(){
+        return keyToValueMap.entrySet();
+    }
+
     public void remove(K key, V value) {
         wlock.lock();
         try {

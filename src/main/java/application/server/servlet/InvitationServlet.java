@@ -2,6 +2,7 @@ package application.server.servlet;
 
 import application.action.Action;
 import application.action.FailureInvitationAction;
+import application.action.GameInitAction;
 import application.action.InviteAction;
 import application.bean.FailureBean;
 import application.bean.UserInfoBean;
@@ -10,6 +11,8 @@ import application.server.ServerUserProfile;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class InvitationServlet implements Servlet{
     @Override
@@ -17,13 +20,44 @@ public class InvitationServlet implements Servlet{
         // you want to invite whe find socket and send a invitation.
         log.debug("A dispose thread starts");
 
-        // whether this is a invitee
+        // whether this is an invitee
 
-        Socket mayInviter = mayInviter = profile.checkInvited(inviter);
+        Socket mayInviter = profile.checkInvited(inviter);
         // need to exclude invite self
         if (mayInviter != null && !((InviteAction) action).who().equals(profile.getUserBySocket(inviter).orElse(null))) {
+            // remove the invitation
+            profile.InvitationExpire(inviter);
             // TODO: Here a game start, switch to gameServlet, first send a state class initialize game, and check
             log.debug("Someone agree the invitation");
+
+
+            ReadWriteLock lock = new ReentrantReadWriteLock();
+
+            lock.writeLock().lock();
+            Socket opponent = profile.getSocketByUser(((InviteAction) action).who()).get();
+            if (profile.newRoom(inviter, opponent)) {
+                log.info(profile.getRoom(inviter));
+                try {
+                    ServerUserProfile.Room room = profile.getRoom(mayInviter).get();
+                    send(new GameInitAction(room.who(inviter), profile.getUserBySocket(opponent).get()), inviter);
+                    send(new GameInitAction(room.who(opponent), ((InviteAction) action).who()), opponent);
+                } catch (IOException e) {
+                    // throw new RuntimeException(e);
+                    // some wrong
+                    // handleException(s);
+                    // here we do not handle the exception, in GameServlet we will handle it
+                    log.error("May something wrong here");
+                    return;
+                }
+
+
+                log.info("A new game start!");
+            } else {
+                log.error("Unknown error!");
+            }
+            lock.writeLock().unlock();
+
+
             log.debug("A dispose thread ends");
             return;
         }
@@ -65,7 +99,7 @@ public class InvitationServlet implements Servlet{
                     }
                 }
             } else {
-                log.warn("Why does not inviter userInfo appear in lobby map?" + inviter);
+                log.error("Why does not inviter userInfo appear in lobby map?" + inviter);
             }
         } else {
             extracted(inviter, profile, "Target invited offline, or playing now");

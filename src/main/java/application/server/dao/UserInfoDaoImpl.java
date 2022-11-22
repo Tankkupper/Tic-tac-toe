@@ -58,7 +58,99 @@ public class UserInfoDaoImpl implements UserInfoDao {
         return result==1;
     }
 
-//    public static void main(String[] args) throws Exception {
-//        System.out.println(new UserInfoDaoImpl().register("c", "b"));
-//    }
+    @Override
+    public boolean win(String name) throws Exception {
+        int result = 0;
+        connection = dbUtil.getConnection();
+        String sql = "update account_log set win = (select win  as  w from account_log where username = ?) + 1 where username = ?";
+        preparedStatement =connection.prepareStatement(sql);
+        preparedStatement.setString(1, name);
+        preparedStatement.setString(2, name);
+        try {
+            result = preparedStatement.executeUpdate();
+            // when insert duplicate key value, raise PSQLException
+        } catch (PSQLException e) {
+            // ERROR: duplicate key value violates unique constraint "account_pkey"
+            //log.debug("duplicate username occurs when register");
+        }
+        dbUtil.closeDBResource(connection, preparedStatement, resultSet);
+
+        connection = dbUtil.getConnection();
+        sql = "update account_log set total = win+lose+tie where username = ?";
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, name);
+        try {
+            result = preparedStatement.executeUpdate();
+            // when insert duplicate key value, raise PSQLException
+        } catch (PSQLException e) {
+            // ERROR: duplicate key value violates unique constraint "account_pkey"
+            //log.debug("duplicate username occurs when register");
+        }
+        dbUtil.closeDBResource(connection, preparedStatement, resultSet);
+        return result==1;
+    }
+
+    @Override
+    public boolean lose(String name) throws Exception {
+        int result = 0;
+        connection = dbUtil.getConnection();
+        String sql = "update account_log set lose = (select lose as w from account_log where username = ?) + 1 where username = ?";
+        preparedStatement =connection.prepareStatement(sql);
+        preparedStatement.setString(1, name);
+        preparedStatement.setString(2, name);
+        try {
+            result = preparedStatement.executeUpdate();
+            // when insert duplicate key value, raise PSQLException
+        } catch (PSQLException e) {
+            // ERROR: duplicate key value violates unique constraint "account_pkey"
+            //log.debug("duplicate username occurs when register");
+        }
+        dbUtil.closeDBResource(connection, preparedStatement, resultSet);
+
+        connection = dbUtil.getConnection();
+        sql = "update account_log set total = win+lose+tie where username = ?";
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, name);
+        try {
+            result = preparedStatement.executeUpdate();
+            // when insert duplicate key value, raise PSQLException
+        } catch (PSQLException e) {
+            // ERROR: duplicate key value violates unique constraint "account_pkey"
+            //log.debug("duplicate username occurs when register");
+        }
+        dbUtil.closeDBResource(connection, preparedStatement, resultSet);
+        return result==1;
+    }
+
+    @Override
+    public boolean tie(String name) throws Exception {
+        int result = 0;
+        connection = dbUtil.getConnection();
+        String sql = "update account_log set tie = (select tie as w from account_log where username = ?) + 1 where username = ?";
+        preparedStatement =connection.prepareStatement(sql);
+        preparedStatement.setString(1, name);
+        preparedStatement.setString(2, name);
+        try {
+            result = preparedStatement.executeUpdate();
+            // when insert duplicate key value, raise PSQLException
+        } catch (PSQLException e) {
+            // ERROR: duplicate key value violates unique constraint "account_pkey"
+            //log.debug("duplicate username occurs when register");
+        }
+        dbUtil.closeDBResource(connection, preparedStatement, resultSet);
+
+        connection = dbUtil.getConnection();
+        sql = "update account_log set total = win+lose+tie where username = ?";
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, name);
+        try {
+            result = preparedStatement.executeUpdate();
+            // when insert duplicate key value, raise PSQLException
+        } catch (PSQLException e) {
+            // ERROR: duplicate key value violates unique constraint "account_pkey"
+            //log.debug("duplicate username occurs when register");
+        }
+        dbUtil.closeDBResource(connection, preparedStatement, resultSet);
+        return result==1;
+    }
 }

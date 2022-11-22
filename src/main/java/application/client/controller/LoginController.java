@@ -54,7 +54,7 @@ public class LoginController extends Controller implements Initializable {
             Platform.exit();
         });
         login.setOnMouseClicked(event -> {
-            System.out.println("click login button");
+            log.info("click login button");
         });
         Image img = new Image("/img/user-circle.jpg");
         headCircle.setFill(new ImagePattern(img));

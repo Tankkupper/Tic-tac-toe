@@ -11,4 +11,9 @@ public interface UserInfoDao {
     Optional<UserInfoBean> login(String name, String pass) throws Exception;
 
     boolean register(String name, String pass) throws Exception;
+
+    public boolean win(String name) throws Exception;
+    public boolean lose(String name) throws Exception;
+    public boolean tie(String name) throws Exception;
+
 }

@@ -38,7 +38,7 @@
       </AnchorPane>
       <ListView fx:id="listView" layoutX="86.0" layoutY="167.0" prefHeight="451.0" prefWidth="230.0" />
       <Button fx:id="refresh" layoutX="615.0" layoutY="133.0" mnemonicParsing="false" text="Refresh" />
-      <Button fx:id="Match" layoutX="86.0" layoutY="618.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" text="Match">
+      <Button fx:id="match" layoutX="86.0" layoutY="618.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" text="Match">
          <font>
             <Font name="Consolas" size="27.0" />
          </font>
@@ -85,7 +85,7 @@
             <Text layoutX="810.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tie:" />
             <Text fx:id="rivalLose" layoutX="853.0" layoutY="59.0" strokeType="OUTSIDE" strokeWidth="0.0" text="num" />
             <Text fx:id="rivalTie" layoutX="853.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="num" />
-            <ImageView fx:id="myTurn" fitHeight="64.0" fitWidth="64.0" layoutX="335.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="myChess" fitHeight="64.0" fitWidth="64.0" layoutX="335.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" />
             <ImageView fx:id="rivalTurn" fitHeight="64.0" fitWidth="64.0" layoutX="587.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </AnchorPane>
