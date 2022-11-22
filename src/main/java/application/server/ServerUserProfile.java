@@ -37,7 +37,8 @@ public class ServerUserProfile {
     private Logger log;
 
     private Random random;
-    public class Room{
+
+    public class Room {
         private Socket circle;
         private Socket cross;
         private TYPE[][] chessboard;
@@ -246,6 +247,7 @@ public class ServerUserProfile {
             log.warn(socket + " had been closed");
         }
     }
+
     public void timeout(Socket socket) {
         shotdown(socket);
         log.warn(socket + " timeout");
@@ -266,7 +268,7 @@ public class ServerUserProfile {
                     endGame(socket, State.LOSE, opponent, State.WIN, this);
                 } catch (IOException exception) {
                     // all lost game draws
-//                        throw new RuntimeException(exception);
+
                     endGame(socket, State.DRAW, opponent, State.DRAW, this);
                 }
             }

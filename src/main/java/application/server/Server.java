@@ -21,6 +21,7 @@ public class Server {
     private ServerUserProfile profile;
     private int cnt;
     private Logger log;
+
     public Server(int port, long receiveTimeDelay) {
         this.cnt = 0;
         this.port = port;
@@ -51,7 +52,7 @@ public class Server {
         //AtomicReference<ServerSocket> t = new AtomicReference<>();
         running = true;
         listenThread = new Thread(() -> {
-            try(ServerSocket serverSocket = new ServerSocket(port, 10)) {
+            try (ServerSocket serverSocket = new ServerSocket(port, 10)) {
                 log.info("The server has launched!");
                 // t.set(serverSocket);
                 while (running && !Thread.currentThread().isInterrupted()) {
@@ -62,7 +63,8 @@ public class Server {
                     log.info("A new connection, and a userThread starts");
 
                     // The following 3 lines code does not raise an exception
-                    Thread userThread = new Thread(new UserThreadTask(inputSocket, receiveTimeDelay));
+                    Thread userThread = new Thread(
+                            new UserThreadTask(inputSocket, receiveTimeDelay));
                     userThread.setName("UserTaskThread["+cnt+"]");
                     cnt++;
                     // contain socket to thread
@@ -74,23 +76,11 @@ public class Server {
             }
         });
         listenThread.start();
-//        try {
-//            Thread.sleep(10000);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//        listenThread.interrupt();
-//        try {
-//            t.get().close();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        running = false;
-//        System.out.println("close the server");
+
     }
 
-    public void stop(){
-        if (running){
+    public void stop() {
+        if (running) {
             running = false;
         }
         if (listenThread != null) {
@@ -99,7 +89,7 @@ public class Server {
     }
 
 
-    private class UserThreadTask implements Runnable{
+    private class UserThreadTask implements Runnable {
         private final Socket socket;
         private long lastReceiveTime;
         private final long receiveTimeDelay;
@@ -119,7 +109,7 @@ public class Server {
                     //TODO: 超时应当加入等待队列 等用户重新连接
                     break;
                 }
-                try{
+                try {
                     Action action = receive();
                     lastReceiveTime = System.currentTimeMillis();
 
@@ -128,8 +118,10 @@ public class Server {
                     //System.out.println("Receive " + action);
                     if (servlet != null) {
                         log.info("Receive " + action);
-                        // new a Thread to dispose this action, prevents the current reader thread from being blocked
-                        Thread servletThread = new Thread(() -> servlet.dispose(action, socket, profile));
+                        // new a Thread to dispose this action,
+                        // prevents the current reader thread from being blocked
+                        Thread servletThread = new Thread(
+                                () -> servlet.dispose(action, socket, profile));
                         servletThread.setName("ServletThread");
                         servletThread.start();
                     }
@@ -139,8 +131,8 @@ public class Server {
                     //TODO： 此处应当有异常处理, 不同阶段处理也会不一样, 可能
                     try {
                         profile.timeout(socket);
-                    }catch (Exception ee) {
-                        ee.printStackTrace();
+                    } catch (Exception ee) {
+                        //ee.printStackTrace();
                     }
                     break;
                 }
